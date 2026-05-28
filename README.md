@@ -50,30 +50,52 @@ The backend is a stateful LangGraph agent graph. Every user message flows
 through a reasoning node that decides whether to call a tool or respond
 directly. Tool results loop back into the reasoning node until the agent
 has enough information to give a complete answer.
-┌──────────────────────────┐
-│        AgentState        │
-│  messages, birth_date,   │
-│  birth_time, birth_place,│
-│  chart_data              │
-└──────────────────────────┘
-│
-▼
-┌──────────────────────────┐
-│      reasoning_node      │◀─────────┐
-│  LLM + system prompt +   │          │
-│  conversation history    │          │
-└──────────────────────────┘          │
-│                        │
-┌───────┴────────┐               │
-│                │               │
-tool_calls?     no tool_calls        │
-│                │               │
-▼                ▼               │
-┌─────────┐        [ END ]            │
-│tool_node│                           │
-│executes │───────────────────────────┘
-│the tool │
-└─────────┘
+
+```
+┌─────────────────────────────────────────────────────┐
+│                     AgentState                       │
+│                                                      │
+│   messages  │  birth_date  │  birth_time  │         │
+│   birth_place  │  chart_data              │         │
+└─────────────────────────────────────────────────────┘
+                          │
+                          │  user message
+                          ▼
+          ┌───────────────────────────────┐
+          │         reasoning_node         │ ◀─────────┐
+          │                               │            │
+          │   LLM (llama-3.3-70b)        │            │
+          │   + system prompt             │            │
+          │   + conversation history      │            │
+          │   + tool definitions          │            │
+          └───────────────────────────────┘            │
+                          │                            │
+           ───────────────┴───────────────             │
+          │                               │            │
+   tool_calls found?              no tool_calls        │
+          │                               │            │
+          ▼                               ▼            │
+┌──────────────────┐              ┌──────────────┐    │
+│    tool_node     │              │     END      │    │
+│                  │              │              │    │
+│ geocode_place()  │              │  final reply │    │
+│ birth_chart()    │              │  to user     │    │
+│ daily_transits() │              └──────────────┘    │
+│ knowledge_lookup │                                   │
+└──────────────────┘                                   │
+          │                                            │
+          │  tool result injected into state           │
+          └────────────────────────────────────────────┘
+```
+
+**Why LangGraph?**
+
+LangGraph gives explicit, inspectable control over the agent loop.
+I can see exactly which node runs, examine the full state at every step,
+and add conditional routing without fighting a black-box framework.
+The reasoning → tool → reasoning loop is transparent and debuggable —
+critical for an eval-driven project where I need to assert tool call
+behaviour in tests.
 
 **Why LangGraph?**
 LangGraph gives explicit control over the agent loop — I can see exactly
