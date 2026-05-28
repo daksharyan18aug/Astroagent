@@ -46,41 +46,40 @@ python run_eval.py
 
 ## Architecture Overview
 
-The backend is a stateful LangGraph agent graph. Every user message flows 
-through a reasoning node that decides whether to call a tool or respond 
-directly. Tool results loop back into the reasoning node until the agent 
+The backend is a stateful LangGraph agent graph. Every user message flows
+through a reasoning node that decides whether to call a tool or respond
+directly. Tool results loop back into the reasoning node until the agent
 has enough information to give a complete answer.
-                ┌─────────────────────────────┐
-                │         AgentState           │
-                │  messages, birth_date,        │
-                │  birth_time, birth_place,     │
-                │  chart_data                   │
-                └─────────────────────────────┘
-                              │
-                              ▼
-                ┌─────────────────────────────┐
-      ┌────────▶│      reasoning_node          │
-      │         │  LLM + system prompt +       │
-      │         │  full conversation history   │
-      │         └─────────────────────────────┘
-      │                       │
-      │          ┌────────────┴────────────┐
-      │          │                         │
-      │    has tool_calls?           no tool_calls
-      │          │                         │
-      │          ▼                         ▼
-      │   ┌─────────────┐              [  END  ]
-      └───│  tool_node  │
-          │  executes   │
-          │  the tool   │
-          └─────────────┘
+┌──────────────────────────┐
+│        AgentState        │
+│  messages, birth_date,   │
+│  birth_time, birth_place,│
+│  chart_data              │
+└──────────────────────────┘
+│
+▼
+┌──────────────────────────┐
+│      reasoning_node      │◀─────────┐
+│  LLM + system prompt +   │          │
+│  conversation history    │          │
+└──────────────────────────┘          │
+│                        │
+┌───────┴────────┐               │
+│                │               │
+tool_calls?     no tool_calls        │
+│                │               │
+▼                ▼               │
+┌─────────┐        [ END ]            │
+│tool_node│                           │
+│executes │───────────────────────────┘
+│the tool │
+└─────────┘
 
 **Why LangGraph?**
-LangGraph gives explicit control over the agent loop — I can see exactly 
-which node runs, inspect state at every step, and add conditional routing 
-without fighting a black-box framework. The tool loop is transparent and 
+LangGraph gives explicit control over the agent loop — I can see exactly
+which node runs, inspect state at every step, and add conditional routing
+without fighting a black-box framework. The tool loop is transparent and
 debuggable.
-
 ---
 
 ## Tools
