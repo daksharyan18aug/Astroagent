@@ -51,43 +51,54 @@ through a reasoning node that decides whether to call a tool or respond
 directly. Tool results loop back into the reasoning node until the agent
 has enough information to give a complete answer.
 
-```
-┌─────────────────────────────────────────────────────┐
-│                     AgentState                      |
-│                                                     |
-│   messages  │  birth_date  │  birth_time  │         │
-│   birth_place  │  chart_data              │         │
-└─────────────────────────────────────────────────────┘
-                          │
-                          │  user message
-                          ▼
-          ┌───────────────────────────────┐
-          │         reasoning_node         │ ◀─────────┐
-          │                               │            │
-          │   LLM (llama-3.3-70b)        │             │
-          │   + system prompt             │            │
-          │   + conversation history      │            │
-          │   + tool definitions          │            │
-          └───────────────────────────────┘            │
-                          │                            │
-           ───────────────┴───────────────             │
-          │                               │            │
-   tool_calls found?              no tool_calls        │
-          │                               │            │
-          ▼                               ▼            │
-┌──────────────────┐              ┌──────────────┐     │
-│    tool_node     │              │     END      │     │
-│                  │              │              │     │
-│ geocode_place()  │              │  final reply │     │
-│ birth_chart()    │              │  to user     │     │
-│ daily_transits() │              └──────────────┘     │
-│ knowledge_lookup │                                   │
-└──────────────────┘                                   │
-          │                                            │
-          │  tool result injected into state           │
-          └────────────────────────────────────────────┘
-```
-
+                         ┌─────────────────────────────────────────────┐
+                         │                 AgentState                  │
+                         │─────────────────────────────────────────────│
+                         │ • messages                                  │
+                         │ • birth_date                                │
+                         │ • birth_time                                │
+                         │ • birth_place                               │
+                         │ • chart_data                                │
+                         └─────────────────────────────────────────────┘
+                                              │
+                                              │ User Message
+                                              ▼
+                    ┌───────────────────────────────────────────────┐
+                    │                reasoning_node                 │
+                    │───────────────────────────────────────────────│
+                    │                                               │
+                    │  LLM: llama-3.3-70b                           │
+                    │  • System Prompt                              │
+                    │  • Conversation History                       │
+                    │  • Tool Definitions                           │
+                    │                                               │
+                    └───────────────────────────────────────────────┘
+                                       │
+                    ┌──────────────────┴──────────────────┐
+                    │                                     │
+                    │ Tool Calls Found                    │ No Tool Calls
+                    ▼                                     ▼
+          ┌──────────────────────────┐         ┌────────────────────┐
+          │        tool_node         │         │        END         │
+          │──────────────────────────│         │────────────────────│
+          │ • geocode_place()        │         │  Final reply       │
+          │ • birth_chart()          │         │  returned to user  │
+          │ • daily_transits()       │         └────────────────────┘
+          │ • knowledge_lookup()     │
+          └──────────────────────────┘
+                    │
+                    │ Tool Results
+                    │ injected into AgentState
+                    ▼
+         ┌───────────────────────────────────────────────┐
+         │          Updated AgentState / Memory          │
+         └───────────────────────────────────────────────┘
+                                    │
+                                    └───────────────┐
+                                                    │
+                                                    ▼
+                                   (loop back to reasoning_node)
+                                   
 **Why LangGraph?**
 
 LangGraph gives explicit, inspectable control over the agent loop.
