@@ -53,8 +53,8 @@ has enough information to give a complete answer.
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│                     AgentState                       │
-│                                                      │
+│                     AgentState                      |
+│                                                     |
 │   messages  │  birth_date  │  birth_time  │         │
 │   birth_place  │  chart_data              │         │
 └─────────────────────────────────────────────────────┘
@@ -64,7 +64,7 @@ has enough information to give a complete answer.
           ┌───────────────────────────────┐
           │         reasoning_node         │ ◀─────────┐
           │                               │            │
-          │   LLM (llama-3.3-70b)        │            │
+          │   LLM (llama-3.3-70b)        │             │
           │   + system prompt             │            │
           │   + conversation history      │            │
           │   + tool definitions          │            │
@@ -75,12 +75,12 @@ has enough information to give a complete answer.
    tool_calls found?              no tool_calls        │
           │                               │            │
           ▼                               ▼            │
-┌──────────────────┐              ┌──────────────┐    │
-│    tool_node     │              │     END      │    │
-│                  │              │              │    │
-│ geocode_place()  │              │  final reply │    │
-│ birth_chart()    │              │  to user     │    │
-│ daily_transits() │              └──────────────┘    │
+┌──────────────────┐              ┌──────────────┐     │
+│    tool_node     │              │     END      │     │
+│                  │              │              │     │
+│ geocode_place()  │              │  final reply │     │
+│ birth_chart()    │              │  to user     │     │
+│ daily_transits() │              └──────────────┘     │
 │ knowledge_lookup │                                   │
 └──────────────────┘                                   │
           │                                            │
@@ -187,21 +187,29 @@ Safety test results (4/4 passed):
 ---
 
 ## File Structure
+
+```
 astroagent/
+│
 ├── backend/
-│   ├── agent.py          # LangGraph graph definition
-│   ├── tools.py          # All 4 astrology tools
-│   ├── server.py         # FastAPI server with streaming
-│   ├── eval.jsonl        # 25-case golden set (versioned)
-│   ├── run_eval.py       # One-command eval harness
-│   ├── eval_results_log.csv  # Run history
-│   └── .env              # API keys (not committed)
+│   ├── agent.py              # LangGraph graph definition
+│   ├── tools.py              # All 4 astrology tools
+│   ├── server.py             # FastAPI server with streaming
+│   ├── eval.jsonl            # 25-case golden set (versioned)
+│   ├── run_eval.py           # One-command eval harness
+│   ├── eval_results_log.csv  # Run history across all runs
+│   ├── .env.example          # Template for API keys
+│   └── .env                  # API keys (not committed)
+│
 ├── frontend/
+│   ├── public/
 │   └── src/
-│       ├── App.js        # Main React app
-│       └── App.css       # Styling
-├── README.md
-└── EVALUATION.md
+│       ├── App.js            # Main React app with streaming
+│       └── App.css           # Spiritual dark theme styling
+│
+├── README.md                 # Setup, architecture, known limitations
+└── EVALUATION.md             # Honest eval analysis and findings
+
 
 ---
 
