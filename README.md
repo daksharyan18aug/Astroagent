@@ -108,12 +108,7 @@ The reasoning → tool → reasoning loop is transparent and debuggable —
 critical for an eval-driven project where I need to assert tool call
 behaviour in tests.
 
-**Why LangGraph?**
-LangGraph gives explicit control over the agent loop — I can see exactly
-which node runs, inspect state at every step, and add conditional routing
-without fighting a black-box framework. The tool loop is transparent and
-debuggable.
----
+
 
 ## Tools
 
