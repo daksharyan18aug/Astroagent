@@ -1,5 +1,5 @@
 # ✦ AstroAgent — AI Astrologer
-### Aradhana Full-Stack Builder Assignment
+
 
 A conversational AI astrologer that computes real birth charts, reasons over 
 live planetary data with tools, and responds with warmth and spiritual care.
